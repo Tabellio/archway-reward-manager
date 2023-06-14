@@ -11,4 +11,7 @@ pub enum ContractError {
 
     #[error("Percentage limit exceeded")]
     PercentageLimitExceeded {},
+
+    #[error("Percentage limit not met")]
+    PercentageLimitNotMet {},
 }

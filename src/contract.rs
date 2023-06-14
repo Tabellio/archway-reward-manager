@@ -29,20 +29,23 @@ pub fn instantiate(
     CONFIG.save(deps.storage, &config)?;
 
     // Total percentage of shares
-    // Used to validate that the total percentage does not exceed 100%
-    let mut total_percentage = Decimal::zero();
+    // Used to validate that the total percentage does not exceed 100% and does not fall below 100%
+    let total_percentage = msg
+        .shares
+        .iter()
+        .fold(Decimal::zero(), |acc, share| acc + share.percentage);
+
+    if total_percentage > Decimal::one() {
+        return Err(ContractError::PercentageLimitExceeded {});
+    }
+    if total_percentage < Decimal::one() {
+        return Err(ContractError::PercentageLimitNotMet {});
+    }
 
     // Processing each share
     for share in msg.shares {
         // Validating the recipient address
         let recipient = deps.api.addr_validate(&share.recipient)?;
-
-        // Adding the percentage to the total percentage
-        total_percentage += share.percentage;
-
-        if total_percentage > Decimal::one() {
-            return Err(ContractError::PercentageLimitExceeded {});
-        }
 
         // Saving the share
         SHARES.save(deps.storage, recipient, &share)?;

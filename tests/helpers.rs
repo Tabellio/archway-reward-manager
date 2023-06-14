@@ -1,9 +1,7 @@
-use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
-use archway_reward_manager::ContractError;
-use cosmwasm_std::{testing::MockApi, Addr, Coin, Empty, MemoryStorage, Uint128};
+use archway_bindings::{ArchwayMsg, ArchwayQuery};
+use cosmwasm_std::{testing::MockApi, Addr, Coin, MemoryStorage, Uint128};
 use cw_multi_test::{
-    custom_app, App, AppBuilder, BankKeeper, Contract, ContractWrapper, Executor, FailingModule,
-    WasmKeeper,
+    custom_app, App, BankKeeper, Contract, ContractWrapper, FailingModule, WasmKeeper,
 };
 
 pub fn archway_reward_manager_contract() -> Box<dyn Contract<ArchwayMsg, ArchwayQuery>> {
