@@ -56,15 +56,30 @@ pub fn instantiate(
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
-    _deps: DepsMut<ArchwayQuery>,
-    _env: Env,
-    _info: MessageInfo,
-    _msg: ExecuteMsg,
+    deps: DepsMut<ArchwayQuery>,
+    env: Env,
+    info: MessageInfo,
+    msg: ExecuteMsg,
 ) -> ArchwayResult<ContractError> {
-    unimplemented!()
+    match msg {
+        ExecuteMsg::AddShare {
+            recipient,
+            percentage,
+        } => unimplemented!(),
+        ExecuteMsg::UpdateShare {
+            recipient,
+            percentage,
+        } => unimplemented!(),
+        ExecuteMsg::RemoveShare { recipient } => unimplemented!(),
+        ExecuteMsg::DistributeRewards {} => unimplemented!(),
+        ExecuteMsg::DistributeNativeTokens {} => unimplemented!(),
+    }
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn query(_deps: Deps<ArchwayQuery>, _env: Env, _msg: QueryMsg) -> StdResult<Binary> {
-    unimplemented!()
+pub fn query(deps: Deps<ArchwayQuery>, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    match msg {
+        QueryMsg::Share { recipient } => unimplemented!(),
+        QueryMsg::Shares { start_after, limit } => unimplemented!(),
+    }
 }

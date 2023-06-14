@@ -38,7 +38,10 @@ pub enum ExecuteMsg {
 pub enum QueryMsg {
     // Returns all the shares
     #[returns(Vec<Share>)]
-    Shares {},
+    Shares {
+        start_after: Option<String>,
+        limit: Option<u32>,
+    },
     // Returns a single share for an address
     #[returns(Share)]
     Share { recipient: String },
