@@ -6,9 +6,9 @@ use crate::state::Share;
 
 #[cw_serde]
 pub struct InstantiateMsg {
-    shares: Vec<Share>,
+    pub shares: Vec<Share>,
     // If true, the contract will not allow any more shares to be added
-    mutable: bool,
+    pub mutable: bool,
 }
 
 #[cw_serde]
