@@ -6,7 +6,7 @@ use cw2::set_contract_version;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
-use crate::state::{Config, CONFIG, SHARES};
+use crate::state::{Config, Share, CONFIG, SHARES};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:archway-reward-manager";
@@ -28,19 +28,7 @@ pub fn instantiate(
     };
     CONFIG.save(deps.storage, &config)?;
 
-    // Total percentage of shares
-    // Used to validate that the total percentage does not exceed 100% and does not fall below 100%
-    let total_percentage = msg
-        .shares
-        .iter()
-        .fold(Decimal::zero(), |acc, share| acc + share.percentage);
-
-    if total_percentage > Decimal::one() {
-        return Err(ContractError::PercentageLimitExceeded {});
-    }
-    if total_percentage < Decimal::one() {
-        return Err(ContractError::PercentageLimitNotMet {});
-    }
+    check_share_percentages(&msg.shares)?;
 
     // Processing each share
     for share in msg.shares {
@@ -62,18 +50,43 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> ArchwayResult<ContractError> {
     match msg {
-        ExecuteMsg::AddShare {
-            recipient,
-            percentage,
-        } => unimplemented!(),
-        ExecuteMsg::UpdateShare {
-            recipient,
-            percentage,
-        } => unimplemented!(),
-        ExecuteMsg::RemoveShare { recipient } => unimplemented!(),
+        ExecuteMsg::UpdateShares { shares } => execute_update_shares(deps, env, info, shares),
+        ExecuteMsg::LockContract {} => unimplemented!(),
         ExecuteMsg::DistributeRewards {} => unimplemented!(),
         ExecuteMsg::DistributeNativeTokens {} => unimplemented!(),
     }
+}
+
+fn execute_update_shares(
+    deps: DepsMut<ArchwayQuery>,
+    _env: Env,
+    info: MessageInfo,
+    shares: Vec<Share>,
+) -> ArchwayResult<ContractError> {
+    let config = CONFIG.load(deps.storage)?;
+
+    // Only mutable contracts can add a share
+    if config.mutable == false {
+        return Err(ContractError::ContractNotMutable {});
+    }
+
+    // Only the admin can add a share
+    if info.sender != config.admin {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    check_share_percentages(&shares)?;
+
+    // Processing each share
+    for share in shares {
+        // Validating the recipient address
+        let recipient = deps.api.addr_validate(&share.recipient)?;
+
+        // Saving the share
+        SHARES.save(deps.storage, recipient, &share)?;
+    }
+
+    Ok(Response::new())
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -82,4 +95,20 @@ pub fn query(deps: Deps<ArchwayQuery>, env: Env, msg: QueryMsg) -> StdResult<Bin
         QueryMsg::Share { recipient } => unimplemented!(),
         QueryMsg::Shares { start_after, limit } => unimplemented!(),
     }
+}
+
+// Used to validate that the total percentage does not exceed 100% and does not fall below 100%
+fn check_share_percentages(shares: &Vec<Share>) -> Result<(), ContractError> {
+    let total_percentage = shares
+        .iter()
+        .fold(Decimal::zero(), |acc, share| acc + share.percentage);
+
+    if total_percentage > Decimal::one() {
+        return Err(ContractError::PercentageLimitExceeded {});
+    };
+    if total_percentage < Decimal::one() {
+        return Err(ContractError::PercentageLimitNotMet {});
+    };
+
+    Ok(())
 }

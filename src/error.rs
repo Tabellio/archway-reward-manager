@@ -9,6 +9,9 @@ pub enum ContractError {
     #[error("Unauthorized")]
     Unauthorized {},
 
+    #[error("Contract not mutable")]
+    ContractNotMutable {},
+
     #[error("Percentage limit exceeded")]
     PercentageLimitExceeded {},
 

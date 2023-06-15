@@ -1,6 +1,5 @@
 // use archway_bindings::Coins;
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::Decimal;
 
 use crate::state::Share;
 
@@ -13,20 +12,10 @@ pub struct InstantiateMsg {
 
 #[cw_serde]
 pub enum ExecuteMsg {
-    // Add a share to the contract
-    AddShare {
-        recipient: String,
-        percentage: Decimal,
-    },
-    // Update a share in the contract
-    UpdateShare {
-        recipient: String,
-        percentage: Decimal,
-    },
-    // Remove a share from the contract
-    RemoveShare {
-        recipient: String,
-    },
+    // Update shares in the contract
+    UpdateShares { shares: Vec<Share> },
+    // Set the mutable flag on the contract
+    LockContract {},
     // Distribute rewards to all shares
     DistributeRewards {},
     // Distribute native tokens to all shares
