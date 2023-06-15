@@ -29,7 +29,7 @@ pub enum QueryMsg {
     #[returns(Vec<Share>)]
     Shares {
         start_after: Option<String>,
-        limit: Option<u32>,
+        limit: Option<u8>,
     },
     // Returns a single share for an address
     #[returns(Share)]

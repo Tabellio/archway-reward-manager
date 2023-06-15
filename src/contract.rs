@@ -1,8 +1,12 @@
-use archway_bindings::{ArchwayQuery, ArchwayResult};
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{Binary, Decimal, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+use cosmwasm_std::{
+    to_binary, Binary, Decimal, Deps, DepsMut, Env, MessageInfo, Order, Response, StdResult,
+};
 use cw2::set_contract_version;
+use cw_storage_plus::Bound;
+
+use archway_bindings::{ArchwayQuery, ArchwayResult};
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
@@ -77,6 +81,9 @@ fn execute_update_shares(
 
     check_share_percentages(&shares)?;
 
+    // Clearing the existing shares
+    SHARES.clear(deps.storage);
+
     // Processing each share
     for share in shares {
         // Validating the recipient address
@@ -93,8 +100,33 @@ fn execute_update_shares(
 pub fn query(deps: Deps<ArchwayQuery>, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::Share { recipient } => unimplemented!(),
-        QueryMsg::Shares { start_after, limit } => unimplemented!(),
+        QueryMsg::Shares { start_after, limit } => {
+            to_binary(&query_shares(deps, start_after, limit)?)
+        }
     }
+}
+
+fn query_shares(
+    deps: Deps<ArchwayQuery>,
+    start_after: Option<String>,
+    limit: Option<u8>,
+) -> StdResult<Vec<Share>> {
+    let limit = limit.unwrap_or(10) as usize;
+    let start = start_after.map(|s| {
+        let recipient = deps.api.addr_validate(&s).unwrap();
+        Bound::ExclusiveRaw(recipient.as_bytes().to_vec())
+    });
+
+    let shares = SHARES
+        .range(deps.storage, start, None, Order::Ascending)
+        .take(limit)
+        .map(|item| {
+            let (_, share) = item?;
+            Ok(share)
+        })
+        .collect::<StdResult<Vec<Share>>>()?;
+
+    Ok(shares)
 }
 
 // Used to validate that the total percentage does not exceed 100% and does not fall below 100%
