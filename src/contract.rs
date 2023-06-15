@@ -55,7 +55,7 @@ pub fn execute(
 ) -> ArchwayResult<ContractError> {
     match msg {
         ExecuteMsg::UpdateShares { shares } => execute_update_shares(deps, env, info, shares),
-        ExecuteMsg::LockContract {} => unimplemented!(),
+        ExecuteMsg::LockContract {} => execute_lock_contract(deps, env, info),
         ExecuteMsg::DistributeRewards {} => unimplemented!(),
         ExecuteMsg::DistributeNativeTokens {} => unimplemented!(),
     }
@@ -92,6 +92,25 @@ fn execute_update_shares(
         // Saving the share
         SHARES.save(deps.storage, recipient, &share)?;
     }
+
+    Ok(Response::new())
+}
+
+fn execute_lock_contract(
+    deps: DepsMut<ArchwayQuery>,
+    _env: Env,
+    info: MessageInfo,
+) -> ArchwayResult<ContractError> {
+    let mut config = CONFIG.load(deps.storage)?;
+
+    // Only the admin can lock the contract
+    if info.sender != config.admin {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    // Updating the contract to be immutable
+    config.mutable = false;
+    CONFIG.save(deps.storage, &config)?;
 
     Ok(Response::new())
 }
