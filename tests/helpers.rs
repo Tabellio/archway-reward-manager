@@ -1,7 +1,8 @@
 use archway_bindings::{ArchwayMsg, ArchwayQuery};
+use archway_reward_manager::{msg::InstantiateMsg, state::Share};
 use cosmwasm_std::{testing::MockApi, Addr, Coin, MemoryStorage, Uint128};
 use cw_multi_test::{
-    custom_app, App, BankKeeper, Contract, ContractWrapper, FailingModule, WasmKeeper,
+    custom_app, App, BankKeeper, Contract, ContractWrapper, Executor, FailingModule, WasmKeeper,
 };
 
 pub fn archway_reward_manager_contract() -> Box<dyn Contract<ArchwayMsg, ArchwayQuery>> {
@@ -40,4 +41,28 @@ pub fn mock_app() -> App<
             )
             .unwrap();
     })
+}
+
+pub fn proper_instantiate(
+    app: &mut App<
+        BankKeeper,
+        MockApi,
+        MemoryStorage,
+        FailingModule<ArchwayMsg, ArchwayQuery, cosmwasm_std::Empty>,
+        WasmKeeper<ArchwayMsg, ArchwayQuery>,
+    >,
+    shares: Vec<Share>,
+    mutable: bool,
+) -> Addr {
+    let code_id = app.store_code(archway_reward_manager_contract());
+
+    app.instantiate_contract(
+        code_id,
+        Addr::unchecked(ADMIN),
+        &InstantiateMsg { shares, mutable },
+        &vec![],
+        "Archway Reward Manager",
+        None,
+    )
+    .unwrap()
 }
