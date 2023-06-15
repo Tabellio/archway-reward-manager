@@ -1,7 +1,7 @@
 // use archway_bindings::Coins;
 use cosmwasm_schema::{cw_serde, QueryResponses};
 
-use crate::state::Share;
+use crate::state::{Config, Share};
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -25,6 +25,9 @@ pub enum ExecuteMsg {
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
+    // Returns the contract config
+    #[returns(Config)]
+    Config {},
     // Returns all the shares
     #[returns(Vec<Share>)]
     Shares {

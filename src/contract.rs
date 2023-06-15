@@ -116,8 +116,9 @@ fn execute_lock_contract(
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn query(deps: Deps<ArchwayQuery>, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+pub fn query(deps: Deps<ArchwayQuery>, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
+        QueryMsg::Config {} => to_binary(&CONFIG.load(deps.storage)?),
         QueryMsg::Share { recipient } => unimplemented!(),
         QueryMsg::Shares { start_after, limit } => {
             to_binary(&query_shares(deps, start_after, limit)?)
