@@ -131,6 +131,7 @@ fn execute_add_custom_contract(
 
     let mut msgs: Vec<WasmMsg> = vec![];
 
+    // Get necessary info for instantiate2
     let creator = deps.api.addr_canonicalize(env.contract.address.as_str())?;
     let ContractInfoResponse {
         code_id: contract_code_id,
@@ -142,10 +143,12 @@ fn execute_add_custom_contract(
 
     let salt = Binary::from(msg.clone());
 
+    // Get the address for the new contract
     let address = deps
         .api
         .addr_humanize(&instantiate2_address(&checksum, &creator, &salt)?)?;
 
+    // Instantiate the new contract
     msgs.push(WasmMsg::Instantiate2 {
         admin: Some(env.contract.address.to_string()),
         code_id,
@@ -156,6 +159,7 @@ fn execute_add_custom_contract(
     });
 
     // Pull execute message from archway-reward-manager-utils package
+    // Execute the new contract to set the owner and rewards addresses
     msgs.push(WasmMsg::Execute {
         contract_addr: address.to_string(),
         msg: to_binary(&ArchwayRewardManagerUtils::UpdateRewardMetadata {
@@ -165,6 +169,7 @@ fn execute_add_custom_contract(
         funds: vec![],
     });
 
+    // Update the admin of the new contract to be the same as the admin of this contract
     msgs.push(WasmMsg::UpdateAdmin {
         contract_addr: address.to_string(),
         admin: info.sender.to_string(),
@@ -196,11 +201,17 @@ fn execute_lock_contract(
 pub fn query(deps: Deps<ArchwayQuery>, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::Config {} => to_binary(&CONFIG.load(deps.storage)?),
-        QueryMsg::Share { recipient } => unimplemented!(),
+        QueryMsg::Share { recipient } => to_binary(&query_share(deps, recipient)?),
         QueryMsg::Shares { start_after, limit } => {
             to_binary(&query_shares(deps, start_after, limit)?)
         }
     }
+}
+
+fn query_share(deps: Deps<ArchwayQuery>, recipient: String) -> StdResult<Share> {
+    let recipient = deps.api.addr_validate(&recipient)?;
+    let share = SHARES.load(deps.storage, recipient)?;
+    Ok(share)
 }
 
 fn query_shares(
