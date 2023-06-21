@@ -6,13 +6,17 @@ use std::str::FromStr;
 use cosmwasm_std::{Addr, Decimal};
 use cw_multi_test::Executor;
 
-use archway_reward_manager::{msg::InstantiateMsg, state::Share, ContractError};
+use archway_reward_manager_factory::{
+    msg::{InstantiateMsg, QueryMsg},
+    state::Share,
+    ContractError,
+};
 
 #[test]
 fn test_happy_path() {
     let mut app = mock_app();
 
-    let code_id = app.store_code(archway_reward_manager_contract());
+    let code_id = app.store_code(factory_contract());
 
     let shares = vec![
         Share {
@@ -52,7 +56,7 @@ fn test_happy_path() {
         .wrap()
         .query_wasm_smart(
             Addr::unchecked("contract0"),
-            &archway_reward_manager::msg::QueryMsg::Shares {
+            &QueryMsg::Shares {
                 start_after: None,
                 limit: None,
             },
@@ -71,7 +75,7 @@ fn test_happy_path() {
 fn test_percentage_limit_exceeded() {
     let mut app = mock_app();
 
-    let code_id = app.store_code(archway_reward_manager_contract());
+    let code_id = app.store_code(factory_contract());
 
     let shares = vec![
         Share {
@@ -111,7 +115,7 @@ fn test_percentage_limit_exceeded() {
 fn test_percentage_limit_not_met() {
     let mut app = mock_app();
 
-    let code_id = app.store_code(archway_reward_manager_contract());
+    let code_id = app.store_code(factory_contract());
 
     let shares = vec![
         Share {

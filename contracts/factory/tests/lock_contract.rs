@@ -3,7 +3,7 @@ use helpers::*;
 
 use std::str::FromStr;
 
-use archway_reward_manager::{
+use archway_reward_manager_factory::{
     msg::{ExecuteMsg, QueryMsg},
     state::{Config, Share},
     ContractError,
@@ -30,11 +30,11 @@ fn test_happy_path() {
         },
     ];
 
-    let archway_reward_manager_addr = proper_instantiate(&mut app, shares.clone(), true);
+    let factory_addr = proper_instantiate(&mut app, shares.clone(), true);
 
     app.execute_contract(
         Addr::unchecked(ADMIN),
-        archway_reward_manager_addr.clone(),
+        factory_addr.clone(),
         &ExecuteMsg::LockContract {},
         &vec![],
     )
@@ -42,14 +42,14 @@ fn test_happy_path() {
 
     let res: Config = app
         .wrap()
-        .query_wasm_smart(archway_reward_manager_addr.clone(), &QueryMsg::Config {})
+        .query_wasm_smart(factory_addr.clone(), &QueryMsg::Config {})
         .unwrap();
     assert_eq!(res.mutable, false);
 
     let err = app
         .execute_contract(
             Addr::unchecked(ADMIN),
-            archway_reward_manager_addr.clone(),
+            factory_addr.clone(),
             &ExecuteMsg::UpdateShares { shares },
             &vec![],
         )
@@ -79,12 +79,12 @@ fn test_invalid_admin() {
         },
     ];
 
-    let archway_reward_manager_addr = proper_instantiate(&mut app, shares.clone(), true);
+    let factory_addr = proper_instantiate(&mut app, shares.clone(), true);
 
     let err = app
         .execute_contract(
             Addr::unchecked(USER),
-            archway_reward_manager_addr.clone(),
+            factory_addr.clone(),
             &ExecuteMsg::LockContract {},
             &vec![],
         )

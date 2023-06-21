@@ -1,6 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use archway_reward_manager::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use archway_reward_manager_factory::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 fn main() {
     write_api! {

@@ -3,7 +3,7 @@ use helpers::*;
 
 use std::str::FromStr;
 
-use archway_reward_manager::{
+use archway_reward_manager_factory::{
     msg::{ExecuteMsg, QueryMsg},
     state::Share,
     ContractError,
@@ -30,7 +30,7 @@ fn test_happy_path() {
         },
     ];
 
-    let archway_reward_manager_addr = proper_instantiate(&mut app, shares, true);
+    let factory_addr = proper_instantiate(&mut app, shares, true);
 
     let new_shares = vec![
         Share {
@@ -45,7 +45,7 @@ fn test_happy_path() {
 
     app.execute_contract(
         Addr::unchecked(ADMIN),
-        archway_reward_manager_addr.clone(),
+        factory_addr.clone(),
         &ExecuteMsg::UpdateShares { shares: new_shares },
         &vec![],
     )
@@ -54,7 +54,7 @@ fn test_happy_path() {
     let res: Vec<Share> = app
         .wrap()
         .query_wasm_smart(
-            archway_reward_manager_addr,
+            factory_addr,
             &QueryMsg::Shares {
                 start_after: None,
                 limit: None,
@@ -87,7 +87,7 @@ fn test_locked_contract() {
         },
     ];
 
-    let archway_reward_manager_addr = proper_instantiate(&mut app, shares, false);
+    let factory_addr = proper_instantiate(&mut app, shares, false);
 
     let new_shares = vec![
         Share {
@@ -103,7 +103,7 @@ fn test_locked_contract() {
     let err = app
         .execute_contract(
             Addr::unchecked(ADMIN),
-            archway_reward_manager_addr.clone(),
+            factory_addr.clone(),
             &ExecuteMsg::UpdateShares { shares: new_shares },
             &vec![],
         )
@@ -133,7 +133,7 @@ fn test_invalid_admin() {
         },
     ];
 
-    let archway_reward_manager_addr = proper_instantiate(&mut app, shares, true);
+    let factory_addr = proper_instantiate(&mut app, shares, true);
 
     let new_shares = vec![
         Share {
@@ -149,7 +149,7 @@ fn test_invalid_admin() {
     let err = app
         .execute_contract(
             Addr::unchecked(USER),
-            archway_reward_manager_addr.clone(),
+            factory_addr.clone(),
             &ExecuteMsg::UpdateShares { shares: new_shares },
             &vec![],
         )
@@ -179,7 +179,7 @@ fn test_percentage_limit_exceeded() {
         },
     ];
 
-    let archway_reward_manager_addr = proper_instantiate(&mut app, shares, true);
+    let factory_addr = proper_instantiate(&mut app, shares, true);
 
     let new_shares = vec![
         Share {
@@ -195,7 +195,7 @@ fn test_percentage_limit_exceeded() {
     let err = app
         .execute_contract(
             Addr::unchecked(ADMIN),
-            archway_reward_manager_addr.clone(),
+            factory_addr.clone(),
             &ExecuteMsg::UpdateShares { shares: new_shares },
             &vec![],
         )
@@ -225,7 +225,7 @@ fn test_percentage_limit_not_met() {
         },
     ];
 
-    let archway_reward_manager_addr = proper_instantiate(&mut app, shares, true);
+    let factory_addr = proper_instantiate(&mut app, shares, true);
 
     let new_shares = vec![
         Share {
@@ -241,7 +241,7 @@ fn test_percentage_limit_not_met() {
     let err = app
         .execute_contract(
             Addr::unchecked(ADMIN),
-            archway_reward_manager_addr.clone(),
+            factory_addr.clone(),
             &ExecuteMsg::UpdateShares { shares: new_shares },
             &vec![],
         )
