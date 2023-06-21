@@ -14,10 +14,21 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub enum ExecuteMsg {
     // Update shares in the contract
-    UpdateShares { shares: Vec<Share> },
+    UpdateShares {
+        shares: Vec<Share>,
+    },
     // Instantiate a new contract as admin
     // The new contract's owner and reward address will be this contract
-    AddCustomContact { code_id: u64, msg: Binary },
+    AddCustomContact {
+        code_id: u64,
+        msg: Binary,
+    },
+    // Updates the custom contract's owner and reward address
+    UpdateCustomContactRewardMetadata {
+        address: String,
+        owner_address: Option<String>,
+        rewards_address: Option<String>,
+    },
     // Set the mutable flag on this contract
     LockContract {},
     // Distribute rewards to all shares

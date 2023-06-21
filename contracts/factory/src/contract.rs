@@ -71,6 +71,18 @@ pub fn execute(
         ExecuteMsg::AddCustomContact { code_id, msg } => {
             execute_add_custom_contract(deps, env, info, code_id, msg)
         }
+        ExecuteMsg::UpdateCustomContactRewardMetadata {
+            address,
+            owner_address,
+            rewards_address,
+        } => execute_update_custom_contract_reward_metadata(
+            deps,
+            env,
+            info,
+            address,
+            owner_address,
+            rewards_address,
+        ),
         ExecuteMsg::LockContract {} => execute_lock_contract(deps, env, info),
         ExecuteMsg::DistributeRewards {} => unimplemented!(),
         ExecuteMsg::DistributeNativeTokens {} => unimplemented!(),
@@ -176,6 +188,36 @@ fn execute_add_custom_contract(
     });
 
     Ok(Response::new().add_messages(msgs))
+}
+
+fn execute_update_custom_contract_reward_metadata(
+    deps: DepsMut<ArchwayQuery>,
+    _env: Env,
+    info: MessageInfo,
+    address: String,
+    owner_address: Option<String>,
+    rewards_address: Option<String>,
+) -> ArchwayResult<ContractError> {
+    let config = CONFIG.load(deps.storage)?;
+
+    if config.mutable == false {
+        return Err(ContractError::ContractNotMutable {});
+    }
+
+    if info.sender != config.admin {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    let msg: WasmMsg = WasmMsg::Execute {
+        contract_addr: address.clone(),
+        msg: to_binary(&ArchwayRewardManagerUtils::UpdateRewardMetadata {
+            owner_address,
+            rewards_address,
+        })?,
+        funds: vec![],
+    };
+
+    Ok(Response::new().add_message(msg))
 }
 
 fn execute_lock_contract(
