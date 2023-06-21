@@ -1,5 +1,6 @@
 // use archway_bindings::Coins;
 use cosmwasm_schema::{cw_serde, QueryResponses};
+use cosmwasm_std::Binary;
 
 use crate::state::{Config, Share};
 
@@ -14,7 +15,10 @@ pub struct InstantiateMsg {
 pub enum ExecuteMsg {
     // Update shares in the contract
     UpdateShares { shares: Vec<Share> },
-    // Set the mutable flag on the contract
+    // Instantiate a new contract as admin
+    // The new contract's owner and reward address will be this contract
+    AddCustomContact { code_id: u64, msg: Binary },
+    // Set the mutable flag on this contract
     LockContract {},
     // Distribute rewards to all shares
     DistributeRewards {},
