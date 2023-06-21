@@ -37,6 +37,7 @@ name = "archway-reward-manager-factory"
 version = "0.1.0"
 dependencies = [
  "archway-bindings",
+ "archway-reward-manager-utils",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
@@ -52,6 +53,7 @@ dependencies = [
 name = "archway-reward-manager-utils"
 version = "0.1.0"
 dependencies = [
+ "cosmwasm-schema",
  "cosmwasm-std",
  "thiserror",
 ]

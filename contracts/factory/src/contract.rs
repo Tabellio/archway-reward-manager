@@ -13,6 +13,8 @@ use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{Config, Share, CONFIG, SHARES};
 
+use archway_reward_manager_utils::ExecuteMsg as ArchwayRewardManagerUtils;
+
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:archway-reward-manager";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -154,12 +156,14 @@ fn execute_add_custom_contract(
     });
 
     // Pull execute message from archway-reward-manager-utils package
-    // TODO: Convert this repo to a workspace
-    // msgs.push(WasmMsg::Execute {
-    //     contract_addr: address.to_string(),
-    //     msg: (),
-    //     funds: vec![],
-    // });
+    msgs.push(WasmMsg::Execute {
+        contract_addr: address.to_string(),
+        msg: to_binary(&ArchwayRewardManagerUtils::UpdateRewardMetadata {
+            owner_address: Some(env.contract.address.to_string()),
+            rewards_address: Some(env.contract.address.to_string()),
+        })?,
+        funds: vec![],
+    });
 
     msgs.push(WasmMsg::UpdateAdmin {
         contract_addr: address.to_string(),
