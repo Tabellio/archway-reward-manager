@@ -248,6 +248,8 @@ dependencies = [
 name = "custom"
 version = "0.1.0"
 dependencies = [
+ "archway-bindings",
+ "archway-reward-manager-utils",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
