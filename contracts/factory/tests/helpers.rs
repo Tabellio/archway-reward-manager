@@ -19,7 +19,7 @@ pub const USER: &str = "user";
 pub const USER2: &str = "user2";
 pub const USER3: &str = "user3";
 
-pub const DENOM: &str = "uconst";
+pub const DENOM: &str = "aconst";
 
 pub fn mock_app() -> App<
     BankKeeper,
@@ -36,7 +36,7 @@ pub fn mock_app() -> App<
                 &Addr::unchecked(ADMIN),
                 vec![Coin {
                     denom: DENOM.to_string(),
-                    amount: Uint128::new(1_000_000),
+                    amount: Uint128::new(1_000_000_000_000_000_000_000_000_000_000),
                 }],
             )
             .unwrap();
