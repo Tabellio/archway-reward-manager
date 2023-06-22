@@ -1,0 +1,4 @@
+/ts/.env
+/ts/.*.env
+
+/ts/node_modules

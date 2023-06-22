@@ -12,6 +12,22 @@ Archway Reward Manager is a platform to make reward and payment related process 
 
 - **Reward and Payment Distribution**: Distribute the accumulated rewards on the factory contract or custom contracts and the payments to the users.
 
+## Getting Started
+
+To compile the contracts and create the wasm files, run the following command:
+
+```bash
+./scripts/optimize.sh
+```
+
+To run the tests, run the following command:
+
+```bash
+cargo test
+```
+
+To try out the contracts take a look at the [TS scripts README file](./scripts/ts/README.md)
+
 ## License
 
 This project is licensed under the [Apache License, Version 2.0](./LICENSE). Feel free to use, modify, and distribute this project in accordance with the terms of the license.
