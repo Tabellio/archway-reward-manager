@@ -6,6 +6,7 @@ use cw2::set_contract_version;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::state::COUNTER;
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:custom";
@@ -20,6 +21,8 @@ pub fn instantiate(
 ) -> ArchwayResult<ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
+    COUNTER.save(deps.storage, &0)?;
+
     Ok(Response::new())
 }
 
@@ -32,6 +35,7 @@ pub fn execute(
 ) -> ArchwayResult<ContractError> {
     match msg {
         // ... other execute messages
+        ExecuteMsg::Increment {} => execute_increment(deps, env, info),
         ExecuteMsg::UpdateRewardMetadata {
             owner_address,
             rewards_address,
@@ -40,6 +44,19 @@ pub fn execute(
 }
 
 // ... other execute methods
+
+// This will increment the counter in the contract
+fn execute_increment(
+    deps: DepsMut<ArchwayQuery>,
+    _env: Env,
+    _info: MessageInfo,
+) -> ArchwayResult<ContractError> {
+    // ... write custom logic if needed
+
+    COUNTER.update(deps.storage, |item| -> StdResult<_> { Ok(item + 1) })?;
+
+    Ok(Response::new())
+}
 
 // TODO: Add this execute method
 // This will update the owner and rewards address on this contract

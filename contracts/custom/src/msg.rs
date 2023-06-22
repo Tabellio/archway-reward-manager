@@ -8,6 +8,8 @@ pub struct InstantiateMsg {}
 #[cw_serde]
 pub enum ExecuteMsg {
     // ... other execute messages
+    // Simple counter increment message
+    Increment {},
     // TODO: Add this new execute message
     // This will update the owner and rewards address on this contract
     UpdateRewardMetadata {
