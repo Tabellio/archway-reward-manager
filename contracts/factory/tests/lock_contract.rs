@@ -1,36 +1,18 @@
 pub mod helpers;
 use helpers::*;
 
-use std::str::FromStr;
-
 use archway_reward_manager_factory::{
     msg::{ExecuteMsg, QueryMsg},
-    state::{Config, Share},
+    state::Config,
     ContractError,
 };
-use cosmwasm_std::{Addr, Decimal};
+use cosmwasm_std::Addr;
 use cw_multi_test::Executor;
 
 #[test]
 fn test_happy_path() {
     let mut app = mock_app();
-
-    let shares = vec![
-        Share {
-            recipient: USER.to_string(),
-            percentage: Decimal::from_str("0.52").unwrap(),
-        },
-        Share {
-            recipient: USER2.to_string(),
-            percentage: Decimal::from_str("0.25").unwrap(),
-        },
-        Share {
-            recipient: USER3.to_string(),
-            percentage: Decimal::from_str("0.23").unwrap(),
-        },
-    ];
-
-    let factory_addr = proper_instantiate(&mut app, shares.clone(), true);
+    let factory_addr = proper_instantiate_with_shares(&mut app);
 
     app.execute_contract(
         Addr::unchecked(ADMIN),
@@ -50,7 +32,7 @@ fn test_happy_path() {
         .execute_contract(
             Addr::unchecked(ADMIN),
             factory_addr.clone(),
-            &ExecuteMsg::UpdateShares { shares },
+            &ExecuteMsg::UpdateShares { shares: vec![] },
             &vec![],
         )
         .unwrap_err();
@@ -63,23 +45,7 @@ fn test_happy_path() {
 #[test]
 fn test_invalid_admin() {
     let mut app = mock_app();
-
-    let shares = vec![
-        Share {
-            recipient: USER.to_string(),
-            percentage: Decimal::from_str("0.52").unwrap(),
-        },
-        Share {
-            recipient: USER2.to_string(),
-            percentage: Decimal::from_str("0.25").unwrap(),
-        },
-        Share {
-            recipient: USER3.to_string(),
-            percentage: Decimal::from_str("0.23").unwrap(),
-        },
-    ];
-
-    let factory_addr = proper_instantiate(&mut app, shares.clone(), true);
+    let factory_addr = proper_instantiate_with_shares(&mut app);
 
     let err = app
         .execute_contract(

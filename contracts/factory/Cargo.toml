@@ -53,3 +53,4 @@ archway-reward-manager-utils = { path = "../../packages/utils" }
 
 [dev-dependencies]
 cw-multi-test = "0.16.2"
+custom-contract = { path = "../custom" }

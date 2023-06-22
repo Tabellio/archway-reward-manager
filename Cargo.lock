@@ -41,6 +41,7 @@ dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
+ "custom-contract",
  "cw-multi-test",
  "cw-storage-plus",
  "cw2",
@@ -245,7 +246,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "custom"
+name = "custom-contract"
 version = "0.1.0"
 dependencies = [
  "archway-bindings",

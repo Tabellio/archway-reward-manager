@@ -1,6 +1,6 @@
 use archway_bindings::{ArchwayMsg, ArchwayQuery};
 use archway_reward_manager_factory::{msg::InstantiateMsg, state::Share};
-use cosmwasm_std::{testing::MockApi, Addr, Coin, MemoryStorage, Uint128};
+use cosmwasm_std::{testing::MockApi, Addr, Coin, Decimal, MemoryStorage, Uint128};
 use cw_multi_test::{
     custom_app, App, BankKeeper, Contract, ContractWrapper, Executor, FailingModule, WasmKeeper,
 };
@@ -60,6 +60,46 @@ pub fn proper_instantiate(
         code_id,
         Addr::unchecked(ADMIN),
         &InstantiateMsg { shares, mutable },
+        &vec![],
+        "Archway Reward Manager",
+        None,
+    )
+    .unwrap()
+}
+
+pub fn proper_instantiate_with_shares(
+    app: &mut App<
+        BankKeeper,
+        MockApi,
+        MemoryStorage,
+        FailingModule<ArchwayMsg, ArchwayQuery, cosmwasm_std::Empty>,
+        WasmKeeper<ArchwayMsg, ArchwayQuery>,
+    >,
+) -> Addr {
+    let code_id = app.store_code(factory_contract());
+
+    let shares = vec![
+        Share {
+            recipient: USER.to_string(),
+            percentage: Decimal::from_str("0.52").unwrap(),
+        },
+        Share {
+            recipient: USER2.to_string(),
+            percentage: Decimal::from_str("0.25").unwrap(),
+        },
+        Share {
+            recipient: USER3.to_string(),
+            percentage: Decimal::from_str("0.23").unwrap(),
+        },
+    ];
+
+    app.instantiate_contract(
+        code_id,
+        Addr::unchecked(ADMIN),
+        &InstantiateMsg {
+            shares,
+            mutable: true,
+        },
         &vec![],
         "Archway Reward Manager",
         None,
