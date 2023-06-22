@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use archway_bindings::{ArchwayMsg, ArchwayQuery};
 use archway_reward_manager_factory::{msg::InstantiateMsg, state::Share};
 use cosmwasm_std::{testing::MockApi, Addr, Coin, Decimal, MemoryStorage, Uint128};
