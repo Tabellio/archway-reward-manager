@@ -1,8 +1,11 @@
+use std::ops::Mul;
+
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    instantiate2_address, to_binary, Binary, CodeInfoResponse, ContractInfoResponse, Decimal, Deps,
-    DepsMut, Env, MessageInfo, Order, Response, StdResult, WasmMsg,
+    coins, instantiate2_address, to_binary, BankMsg, Binary, CodeInfoResponse,
+    ContractInfoResponse, Decimal, Deps, DepsMut, Env, MessageInfo, Order, Response, StdResult,
+    WasmMsg,
 };
 use cw2::set_contract_version;
 use cw_storage_plus::Bound;
@@ -85,7 +88,7 @@ pub fn execute(
         ),
         ExecuteMsg::LockContract {} => execute_lock_contract(deps, env, info),
         ExecuteMsg::WithdrawRewards {} => execute_withdraw_rewards(deps, env, info),
-        ExecuteMsg::DistributeNativeTokens {} => unimplemented!(),
+        ExecuteMsg::DistributeNativeTokens {} => execute_distribute_native_tokens(deps, env, info),
     }
 }
 
@@ -256,6 +259,45 @@ fn execute_withdraw_rewards(
     };
 
     Ok(Response::new().add_message(msg))
+}
+
+fn execute_distribute_native_tokens(
+    deps: DepsMut<ArchwayQuery>,
+    env: Env,
+    info: MessageInfo,
+) -> ArchwayResult<ContractError> {
+    let config = CONFIG.load(deps.storage)?;
+
+    if info.sender != config.admin {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    let mut msgs: Vec<BankMsg> = vec![];
+
+    // Get the contract's native ARCH balance
+    let balance = deps.querier.query_balance(env.contract.address, "aconst")?;
+
+    // Get the total share percentage
+    let shares = SHARES
+        .range(deps.storage, None, None, Order::Ascending)
+        .map(|item| {
+            let (_, share) = item?;
+            Ok(share)
+        })
+        .collect::<Result<Vec<Share>, ContractError>>()?;
+
+    // Calculate the amount of rewards to send to each recipient
+    for share in shares {
+        let amount = balance.amount.mul(share.percentage);
+
+        // Create bank messages to send rewards to each recipient
+        msgs.push(BankMsg::Send {
+            to_address: share.recipient.to_string(),
+            amount: coins(amount.u128(), "aconst"),
+        });
+    }
+
+    Ok(Response::new().add_messages(msgs))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
