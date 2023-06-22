@@ -22,7 +22,7 @@ const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
     deps: DepsMut<ArchwayQuery>,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> ArchwayResult<ContractError> {
@@ -47,11 +47,11 @@ pub fn instantiate(
     }
 
     // Setting the addresses for reward related processes
-    // Sender is the one that can update the addresses
-    // Sender is the one that will receive the rewards
+    // Only factory contract will be able to change these addresses
+    // Only factory contract will get rewards
     let metadata_msg = ArchwayMsg::UpdateContractMetadata {
-        owner_address: Some(info.sender.to_string()),
-        rewards_address: Some(info.sender.to_string()),
+        owner_address: Some(env.contract.address.to_string()),
+        rewards_address: Some(env.contract.address.to_string()),
     };
 
     Ok(Response::new()
@@ -84,7 +84,7 @@ pub fn execute(
             rewards_address,
         ),
         ExecuteMsg::LockContract {} => execute_lock_contract(deps, env, info),
-        ExecuteMsg::DistributeRewards {} => unimplemented!(),
+        ExecuteMsg::WithdrawRewards {} => execute_withdraw_rewards(deps, env, info),
         ExecuteMsg::DistributeNativeTokens {} => unimplemented!(),
     }
 }
@@ -237,6 +237,25 @@ fn execute_lock_contract(
     CONFIG.save(deps.storage, &config)?;
 
     Ok(Response::new())
+}
+
+fn execute_withdraw_rewards(
+    deps: DepsMut<ArchwayQuery>,
+    _env: Env,
+    info: MessageInfo,
+) -> ArchwayResult<ContractError> {
+    let config = CONFIG.load(deps.storage)?;
+
+    if info.sender != config.admin {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    let msg = ArchwayMsg::WithdrawRewards {
+        records_limit: None,
+        record_ids: vec![],
+    };
+
+    Ok(Response::new().add_message(msg))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]

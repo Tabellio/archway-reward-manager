@@ -31,8 +31,8 @@ pub enum ExecuteMsg {
     },
     // Set the mutable flag on this contract
     LockContract {},
-    // Distribute rewards to all shares
-    DistributeRewards {},
+    // Withdraw rewards for the contract
+    WithdrawRewards {},
     // Distribute native tokens to all shares
     DistributeNativeTokens {},
 }
