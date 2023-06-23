@@ -1,7 +1,11 @@
 [workspace]
 members = ["contracts/*", "packages/*"]
 
-[profile.release.package.archway-reward-manager]
+[profile.release.package.archway-reward-manager-factory]
+codegen-units = 1
+incremental = false
+
+[profile.release.package.custom-contract]
 codegen-units = 1
 incremental = false
 
