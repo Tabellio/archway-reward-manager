@@ -12,7 +12,8 @@ pub fn factory_contract() -> Box<dyn Contract<ArchwayMsg, ArchwayQuery>> {
         archway_reward_manager_factory::contract::execute,
         archway_reward_manager_factory::contract::instantiate,
         archway_reward_manager_factory::contract::query,
-    );
+    )
+    .with_reply(archway_reward_manager_factory::contract::reply);
     Box::new(contract)
 }
 

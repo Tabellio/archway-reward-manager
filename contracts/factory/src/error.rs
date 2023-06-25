@@ -23,4 +23,7 @@ pub enum ContractError {
 
     #[error("Percentage limit not met")]
     PercentageLimitNotMet {},
+
+    #[error("Could not instantiate custom contract")]
+    InstantiateError {},
 }

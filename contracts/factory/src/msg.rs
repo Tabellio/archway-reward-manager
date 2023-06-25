@@ -19,12 +19,12 @@ pub enum ExecuteMsg {
     },
     // Instantiate a new contract as admin
     // The new contract's owner and reward address will be this contract
-    AddCustomContact {
+    AddCustomContract {
         code_id: u64,
         msg: Binary,
     },
     // Updates the custom contract's owner and reward address
-    UpdateCustomContactRewardMetadata {
+    UpdateCustomContractRewardMetadata {
         address: String,
         owner_address: Option<String>,
         rewards_address: Option<String>,

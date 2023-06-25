@@ -3,14 +3,14 @@ use std::ops::Mul;
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    coins, instantiate2_address, to_binary, BankMsg, Binary, CodeInfoResponse,
-    ContractInfoResponse, Decimal, Deps, DepsMut, Env, MessageInfo, Order, Response, StdResult,
-    WasmMsg,
+    coins, to_binary, BankMsg, Binary, Decimal, Deps, DepsMut, Env, MessageInfo, Order, Reply,
+    Response, StdError, StdResult, SubMsg, WasmMsg,
 };
 use cw2::set_contract_version;
 use cw_storage_plus::Bound;
 
 use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
+use cw_utils::parse_reply_instantiate_data;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
@@ -22,10 +22,12 @@ use archway_reward_manager_utils::ExecuteMsg as ArchwayRewardManagerUtils;
 const CONTRACT_NAME: &str = "crates.io:archway-reward-manager";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+const INSTANTIATE_REPLY_ID: u64 = 1;
+
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
     deps: DepsMut<ArchwayQuery>,
-    env: Env,
+    _env: Env,
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> ArchwayResult<ContractError> {
@@ -49,17 +51,7 @@ pub fn instantiate(
         SHARES.save(deps.storage, recipient, &share)?;
     }
 
-    // Setting the addresses for reward related processes
-    // Only factory contract will be able to change these addresses
-    // Only factory contract will get rewards
-    let metadata_msg = ArchwayMsg::UpdateContractMetadata {
-        owner_address: Some(env.contract.address.to_string()),
-        rewards_address: Some(env.contract.address.to_string()),
-    };
-
-    Ok(Response::new()
-        .add_message(metadata_msg)
-        .add_attribute("admin", info.sender))
+    Ok(Response::new().add_attribute("admin", info.sender))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -71,10 +63,10 @@ pub fn execute(
 ) -> ArchwayResult<ContractError> {
     match msg {
         ExecuteMsg::UpdateShares { shares } => execute_update_shares(deps, env, info, shares),
-        ExecuteMsg::AddCustomContact { code_id, msg } => {
+        ExecuteMsg::AddCustomContract { code_id, msg } => {
             execute_add_custom_contract(deps, env, info, code_id, msg)
         }
-        ExecuteMsg::UpdateCustomContactRewardMetadata {
+        ExecuteMsg::UpdateCustomContractRewardMetadata {
             address,
             owner_address,
             rewards_address,
@@ -144,6 +136,8 @@ fn execute_add_custom_contract(
         return Err(ContractError::Unauthorized {});
     }
 
+    // TODO: Uncomment this when instantiate2 is available
+    /*
     let mut msgs: Vec<WasmMsg> = vec![];
 
     // Get necessary info for instantiate2
@@ -188,9 +182,20 @@ fn execute_add_custom_contract(
     msgs.push(WasmMsg::UpdateAdmin {
         contract_addr: address.to_string(),
         admin: info.sender.to_string(),
-    });
+    }); */
 
-    Ok(Response::new().add_messages(msgs))
+    let msg: SubMsg<ArchwayMsg> = SubMsg::reply_on_success(
+        WasmMsg::Instantiate {
+            admin: Some(env.contract.address.to_string()),
+            code_id,
+            msg,
+            funds: info.funds,
+            label: "Archway Reward Manager Custom Contract".to_string(),
+        },
+        INSTANTIATE_REPLY_ID,
+    );
+
+    Ok(Response::new().add_submessage(msg))
 }
 
 fn execute_update_custom_contract_reward_metadata(
@@ -254,7 +259,7 @@ fn execute_withdraw_rewards(
     }
 
     let msg = ArchwayMsg::WithdrawRewards {
-        records_limit: None,
+        records_limit: Some(0),
         record_ids: vec![],
     };
 
@@ -298,6 +303,42 @@ fn execute_distribute_native_tokens(
     }
 
     Ok(Response::new().add_messages(msgs))
+}
+
+// TODO: Remove this reply entry point once we have cosmwasm 1.2 features in Archway
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn reply(deps: DepsMut<ArchwayQuery>, env: Env, msg: Reply) -> ArchwayResult<ContractError> {
+    let config = CONFIG.load(deps.storage)?;
+
+    if msg.id != INSTANTIATE_REPLY_ID {
+        return Err(ContractError::InstantiateError {});
+    };
+
+    let reply = parse_reply_instantiate_data(msg);
+
+    match reply {
+        Ok(res) => {
+            let msgs: Vec<WasmMsg> = vec![
+                WasmMsg::Execute {
+                    contract_addr: res.contract_address.clone(),
+                    msg: to_binary(&ArchwayRewardManagerUtils::UpdateRewardMetadata {
+                        owner_address: Some(env.contract.address.to_string()),
+                        rewards_address: Some(env.contract.address.to_string()),
+                    })?,
+                    funds: vec![],
+                },
+                WasmMsg::UpdateAdmin {
+                    contract_addr: res.contract_address,
+                    admin: config.admin.to_string(),
+                },
+            ];
+
+            Ok(Response::new().add_messages(msgs))
+        }
+        Err(err) => Err(ContractError::Std(StdError::GenericErr {
+            msg: err.to_string(),
+        })),
+    }
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
