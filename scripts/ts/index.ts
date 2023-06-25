@@ -34,6 +34,24 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
     return res.contractAddress
   }
 
+  const updateFactoryRewardsMetadata = async (contractAddress: string) => {
+    const res = await adminClient.setContractMetadata(
+      adminAccount.address,
+      {
+        contractAddress,
+        ownerAddress: contractAddress,
+        rewardsAddress: contractAddress,
+      },
+      "auto"
+    )
+
+    console.log(
+      "\n🟠 Update Factory Contract Rewards Metadata TxHash: ",
+      res.transactionHash,
+      "\n"
+    )
+  }
+
   const updateShares = async (contractAddress: string) => {
     let res = await adminClient.execute(
       adminAccount.address,
@@ -58,18 +76,30 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
       contractAddress,
       {
         add_custom_contract: {
-          code_id: CUSTOM_CONTRACT_CODE_ID,
+          code_id: Number(CUSTOM_CONTRACT_CODE_ID),
           msg: toBinary({}),
         },
       },
       "auto"
     )
 
-    console.log(JSON.stringify(res, null, 2))
-
     console.log("\n🟠 Add Custom Contract TxHash: ", res.transactionHash, "\n")
 
-    console.log("\n🟠 Custom Contract Address: ", res.events, "\n")
+    console.log(
+      "\n🟠 Custom Contract Address: ",
+      res.events
+        .filter((event) => event.type === "instantiate")[0]
+        .attributes.filter(
+          (attribute) => attribute.key === "_contract_address"
+        )[0].value,
+      "\n"
+    )
+
+    return res.events
+      .filter((event) => event.type === "instantiate")[0]
+      .attributes.filter(
+        (attribute) => attribute.key === "_contract_address"
+      )[0].value
   }
 
   const executeCustomContract = async (contractAddress: string) => {
@@ -177,17 +207,20 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
   }
 
   // Create new factory
-  const contractAddress = await createNewFactory()
+  const factoryContractAddress = await createNewFactory()
+
+  // Update factory contract rewards metadata
+  await updateFactoryRewardsMetadata(factoryContractAddress)
 
   // Update shares of users
-  await updateShares(contractAddress)
+  await updateShares(factoryContractAddress)
 
   // Add custom contract to factory
-  await addCustomContract(contractAddress)
+  const customContractAddress = await addCustomContract(factoryContractAddress)
 
   // Execute custom contract multiple times to generate rewards
-  await executeCustomContract(contractAddress)
+  await executeCustomContract(customContractAddress)
 
   // Distribute rewards to users based on their shares
-  await distributeRewards(contractAddress)
+  await distributeRewards(factoryContractAddress)
 })()
