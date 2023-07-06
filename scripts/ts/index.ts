@@ -148,7 +148,7 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
   }
 
   const distributeRewards = async (contractAddress: string) => {
-    let rewardsBalance = adminClient.getAllRewardsRecords(contractAddress)
+    let rewardsBalance = await adminClient.getAllRewardsRecords(contractAddress)
 
     console.log(
       "\n🟠 Rewards Balance: ",
@@ -156,8 +156,14 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
       "\n"
     )
 
-    let userBalance = adminClient.getBalance(userAccount.address, "aconst")
-    let user2Balance = adminClient.getBalance(user2Account.address, "aconst")
+    let userBalance = await adminClient.getBalance(
+      userAccount.address,
+      "aconst"
+    )
+    let user2Balance = await adminClient.getBalance(
+      user2Account.address,
+      "aconst"
+    )
 
     console.log(
       "\n🟠 User Balance: ",
@@ -191,8 +197,8 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
 
     console.log("\n🟠 Distribute Rewards TxHash: ", res.transactionHash, "\n")
 
-    userBalance = adminClient.getBalance(userAccount.address, "aconst")
-    user2Balance = adminClient.getBalance(user2Account.address, "aconst")
+    userBalance = await adminClient.getBalance(userAccount.address, "aconst")
+    user2Balance = await adminClient.getBalance(user2Account.address, "aconst")
 
     console.log(
       "\n🟠 User Balance: ",
