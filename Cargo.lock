@@ -33,10 +33,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "archway-bindings"
+version = "0.1.0"
+source = "git+https://github.com/chris-ricketts/archway-bindings#82d5c9c638e1d427240f23b265a44144192b5510"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "archway-reward-manager-factory"
 version = "0.1.0"
 dependencies = [
- "archway-bindings",
+ "archway-bindings 0.1.0 (git+https://github.com/chris-ricketts/archway-bindings)",
  "archway-reward-manager-utils",
  "cosmwasm-schema",
  "cosmwasm-std",
@@ -250,7 +262,7 @@ dependencies = [
 name = "custom-contract"
 version = "0.1.0"
 dependencies = [
- "archway-bindings",
+ "archway-bindings 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "archway-reward-manager-utils",
  "cosmwasm-schema",
  "cosmwasm-std",
