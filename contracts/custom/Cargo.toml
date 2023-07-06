@@ -49,7 +49,6 @@ schemars = "0.8.10"
 serde = { version = "1.0.145", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0.31" }
 archway-bindings = "0.1.0"
-archway-reward-manager-utils = { path = "../../packages/utils" }
 
 [dev-dependencies]
 cw-multi-test = "0.16.2"

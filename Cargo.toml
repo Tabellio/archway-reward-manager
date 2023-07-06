@@ -1,7 +1,7 @@
 [workspace]
-members = ["contracts/*", "packages/*"]
+members = ["contracts/*"]
 
-[profile.release.package.archway-reward-manager-factory]
+[profile.release.package.pantheon-splitter]
 codegen-units = 1
 incremental = false
 

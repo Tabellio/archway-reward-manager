@@ -3,13 +3,13 @@ use helpers::*;
 
 use std::str::FromStr;
 
-use archway_reward_manager_factory::{
+use cosmwasm_std::{Addr, Decimal};
+use cw_multi_test::Executor;
+use pantheon_splitter::{
     msg::{ExecuteMsg, QueryMsg},
     state::Share,
     ContractError,
 };
-use cosmwasm_std::{Addr, Decimal};
-use cw_multi_test::Executor;
 
 #[test]
 fn test_happy_path() {

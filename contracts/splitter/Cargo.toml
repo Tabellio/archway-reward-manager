@@ -1,5 +1,5 @@
 [package]
-name = "archway-reward-manager-factory"
+name = "pantheon-splitter"
 version = "0.1.0"
 authors = ["findolor <findolor@tabellio.io>"]
 edition = "2021"
@@ -51,7 +51,6 @@ schemars = "0.8.10"
 serde = { version = "1.0.145", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0.31" }
 archway-bindings = { git = "https://github.com/chris-ricketts/archway-bindings" }
-archway-reward-manager-utils = { path = "../../packages/utils" }
 
 [dev-dependencies]
 cw-multi-test = "0.16.2"

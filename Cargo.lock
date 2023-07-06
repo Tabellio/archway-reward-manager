@@ -45,34 +45,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "archway-reward-manager-factory"
-version = "0.1.0"
-dependencies = [
- "archway-bindings 0.1.0 (git+https://github.com/chris-ricketts/archway-bindings)",
- "archway-reward-manager-utils",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cosmwasm-storage",
- "custom-contract",
- "cw-multi-test",
- "cw-storage-plus",
- "cw-utils",
- "cw2",
- "schemars",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "archway-reward-manager-utils"
-version = "0.1.0"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "thiserror",
-]
-
-[[package]]
 name = "base16ct"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -263,7 +235,6 @@ name = "custom-contract"
 version = "0.1.0"
 dependencies = [
  "archway-bindings 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "archway-reward-manager-utils",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
@@ -550,6 +521,24 @@ name = "opaque-debug"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
+
+[[package]]
+name = "pantheon-splitter"
+version = "0.1.0"
+dependencies = [
+ "archway-bindings 0.1.0 (git+https://github.com/chris-ricketts/archway-bindings)",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "custom-contract",
+ "cw-multi-test",
+ "cw-storage-plus",
+ "cw-utils",
+ "cw2",
+ "schemars",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "pkcs8"

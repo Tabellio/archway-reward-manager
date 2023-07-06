@@ -1,19 +1,19 @@
 use std::str::FromStr;
 
 use archway_bindings::{ArchwayMsg, ArchwayQuery};
-use archway_reward_manager_factory::{msg::InstantiateMsg, state::Share};
 use cosmwasm_std::{testing::MockApi, Addr, Coin, Decimal, MemoryStorage, Uint128};
 use cw_multi_test::{
     custom_app, App, BankKeeper, Contract, ContractWrapper, Executor, FailingModule, WasmKeeper,
 };
+use pantheon_splitter::{msg::InstantiateMsg, state::Share};
 
 pub fn factory_contract() -> Box<dyn Contract<ArchwayMsg, ArchwayQuery>> {
     let contract = ContractWrapper::new(
-        archway_reward_manager_factory::contract::execute,
-        archway_reward_manager_factory::contract::instantiate,
-        archway_reward_manager_factory::contract::query,
+        pantheon_splitter::contract::execute,
+        pantheon_splitter::contract::instantiate,
+        pantheon_splitter::contract::query,
     )
-    .with_reply(archway_reward_manager_factory::contract::reply);
+    .with_reply(pantheon_splitter::contract::reply);
     Box::new(contract)
 }
 
@@ -64,7 +64,7 @@ pub fn proper_instantiate(
         Addr::unchecked(ADMIN),
         &InstantiateMsg { shares, mutable },
         &vec![],
-        "Archway Reward Manager",
+        "Pantheon Splitter",
         None,
     )
     .unwrap()
@@ -104,7 +104,7 @@ pub fn proper_instantiate_with_shares(
             mutable: true,
         },
         &vec![],
-        "Archway Reward Manager",
+        "Pantheon Splitter",
         None,
     )
     .unwrap()

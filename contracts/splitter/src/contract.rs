@@ -16,10 +16,8 @@ use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{Config, Share, CONFIG, SHARES};
 
-use archway_reward_manager_utils::ExecuteMsg as ArchwayRewardManagerUtils;
-
 // version info for migration info
-const CONTRACT_NAME: &str = "crates.io:archway-reward-manager";
+const CONTRACT_NAME: &str = "crates.io:pantheon-splitter";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 const INSTANTIATE_REPLY_ID: u64 = 1;
@@ -136,61 +134,13 @@ fn execute_add_custom_contract(
         return Err(ContractError::Unauthorized {});
     }
 
-    // TODO: Uncomment this when instantiate2 is available
-    /*
-    let mut msgs: Vec<WasmMsg> = vec![];
-
-    // Get necessary info for instantiate2
-    let creator = deps.api.addr_canonicalize(env.contract.address.as_str())?;
-    let ContractInfoResponse {
-        code_id: contract_code_id,
-        ..
-    } = deps
-        .querier
-        .query_wasm_contract_info(&env.contract.address)?;
-    let CodeInfoResponse { checksum, .. } = deps.querier.query_wasm_code_info(contract_code_id)?;
-
-    let salt = Binary::from(msg.clone());
-
-    // Get the address for the new contract
-    let address = deps
-        .api
-        .addr_humanize(&instantiate2_address(&checksum, &creator, &salt)?)?;
-
-    // Instantiate the new contract
-    msgs.push(WasmMsg::Instantiate2 {
-        admin: Some(env.contract.address.to_string()),
-        code_id,
-        label: "".to_string(),
-        msg,
-        funds: info.funds,
-        salt,
-    });
-
-    // Pull execute message from archway-reward-manager-utils package
-    // Execute the new contract to set the owner and rewards addresses
-    msgs.push(WasmMsg::Execute {
-        contract_addr: address.to_string(),
-        msg: to_binary(&ArchwayRewardManagerUtils::UpdateRewardMetadata {
-            owner_address: Some(env.contract.address.to_string()),
-            rewards_address: Some(env.contract.address.to_string()),
-        })?,
-        funds: vec![],
-    });
-
-    // Update the admin of the new contract to be the same as the admin of this contract
-    msgs.push(WasmMsg::UpdateAdmin {
-        contract_addr: address.to_string(),
-        admin: info.sender.to_string(),
-    }); */
-
     let msg: SubMsg<ArchwayMsg> = SubMsg::reply_on_success(
         WasmMsg::Instantiate {
             admin: Some(env.contract.address.to_string()),
             code_id,
             msg,
             funds: info.funds,
-            label: "Archway Reward Manager Custom Contract".to_string(),
+            label: "Pantheon Custom Contract".to_string(),
         },
         INSTANTIATE_REPLY_ID,
     );
@@ -216,13 +166,10 @@ fn execute_update_custom_contract_reward_metadata(
         return Err(ContractError::Unauthorized {});
     }
 
-    let msg: WasmMsg = WasmMsg::Execute {
-        contract_addr: address.clone(),
-        msg: to_binary(&ArchwayRewardManagerUtils::UpdateRewardMetadata {
-            owner_address,
-            rewards_address,
-        })?,
-        funds: vec![],
+    let msg = ArchwayMsg::UpdateContractMetadata {
+        contract_address: Some(address),
+        owner_address,
+        rewards_address,
     };
 
     Ok(Response::new().add_message(msg))
@@ -305,7 +252,6 @@ fn execute_distribute_native_tokens(
     Ok(Response::new().add_messages(msgs))
 }
 
-// TODO: Remove this reply entry point once we have cosmwasm 1.2 features in Archway
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn reply(deps: DepsMut<ArchwayQuery>, env: Env, msg: Reply) -> ArchwayResult<ContractError> {
     let config = CONFIG.load(deps.storage)?;

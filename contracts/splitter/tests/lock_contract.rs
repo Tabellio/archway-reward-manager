@@ -1,13 +1,13 @@
 pub mod helpers;
 use helpers::*;
 
-use archway_reward_manager_factory::{
+use cosmwasm_std::Addr;
+use cw_multi_test::Executor;
+use pantheon_splitter::{
     msg::{ExecuteMsg, QueryMsg},
     state::Config,
     ContractError,
 };
-use cosmwasm_std::Addr;
-use cw_multi_test::Executor;
 
 #[test]
 fn test_happy_path() {

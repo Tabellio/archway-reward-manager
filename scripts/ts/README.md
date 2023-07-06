@@ -1,6 +1,6 @@
-# Archway Reward Manager Scripts
+# Pantheon Scripts
 
-These scripts are used to help manage the Archway Reward Manager.
+These scripts are used to help manage the Pantheon.
 
 ## Prerequisites
 
@@ -46,7 +46,7 @@ You are now ready to use the start script!
 
 > **Note**: You first need to upload your contracts to the blockchain. Refer to the [Upload Script](#upload-script) section for more information.
 
-Start script is used to execute multiple operations at once. It is used to try out the Archay Reward Manager.
+Start script is used to execute multiple operations at once. It is used to try out Pantheon.
 
 1. It creates a mutable factory contract with 25% User and 75% User2 shares.
 2. It updates the shares to be 35% and 65% respectively.

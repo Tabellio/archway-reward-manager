@@ -6,7 +6,7 @@ use std::str::FromStr;
 use cosmwasm_std::{Addr, Decimal};
 use cw_multi_test::Executor;
 
-use archway_reward_manager_factory::{
+use pantheon_splitter::{
     msg::{InstantiateMsg, QueryMsg},
     state::Share,
     ContractError,
@@ -41,7 +41,7 @@ fn test_happy_path() {
             mutable: false,
         },
         &vec![],
-        "Archway Reward Manager",
+        "Pantheon Splitter",
         None,
     )
     .unwrap();
@@ -50,7 +50,7 @@ fn test_happy_path() {
     assert_eq!(res.code_id as u64, code_id);
     assert_eq!(res.creator, Addr::unchecked(ADMIN));
     assert_eq!(res.admin, None);
-    assert_eq!(res.label, "Archway Reward Manager");
+    assert_eq!(res.label, "Pantheon Splitter");
 
     let res: Vec<Share> = app
         .wrap()
@@ -101,7 +101,7 @@ fn test_percentage_limit_exceeded() {
                 mutable: false,
             },
             &vec![],
-            "Archway Reward Manager",
+            "Pantheon Splitter",
             None,
         )
         .unwrap_err();
@@ -137,7 +137,7 @@ fn test_percentage_limit_not_met() {
                 mutable: false,
             },
             &vec![],
-            "Archway Reward Manager",
+            "Pantheon Splitter",
             None,
         )
         .unwrap_err();

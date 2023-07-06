@@ -11,7 +11,7 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
   const { adminClient, adminAccount, userAccount, user2Account } =
     await getClientsAndAccounts()
 
-  const createNewFactory = async () => {
+  const createNewSpliter = async () => {
     const res = await adminClient.instantiate(
       adminAccount.address,
       Number(FACTORY_CONTRACT_CODE_ID),
@@ -22,7 +22,7 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
         ],
         mutable: true,
       },
-      "Archway Reward Manager Factory",
+      "Pantheon Splitter",
       "auto",
       {
         admin: adminAccount.address,
@@ -34,7 +34,7 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
     return res.contractAddress
   }
 
-  const updateFactoryRewardsMetadata = async (contractAddress: string) => {
+  const updateSplitterRewardsMetadata = async (contractAddress: string) => {
     const res = await adminClient.setContractMetadata(
       adminAccount.address,
       {
@@ -46,7 +46,7 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
     )
 
     console.log(
-      "\n🟠 Update Factory Contract Rewards Metadata TxHash: ",
+      "\n🟠 Update Splitter Contract Rewards Metadata TxHash: ",
       res.transactionHash,
       "\n"
     )
@@ -212,21 +212,21 @@ const CUSTOM_CONTRACT_CODE_ID = process.env.CUSTOM_CONTRACT_CODE_ID || ""
     )
   }
 
-  // Create new factory
-  const factoryContractAddress = await createNewFactory()
+  // Create new splitter
+  const splitterContractAddress = await createNewSpliter()
 
-  // Update factory contract rewards metadata
-  await updateFactoryRewardsMetadata(factoryContractAddress)
+  // Update splitter contract rewards metadata
+  await updateSplitterRewardsMetadata(splitterContractAddress)
 
   // Update shares of users
-  await updateShares(factoryContractAddress)
+  await updateShares(splitterContractAddress)
 
   // Add custom contract to factory
-  const customContractAddress = await addCustomContract(factoryContractAddress)
+  const customContractAddress = await addCustomContract(splitterContractAddress)
 
   // Execute custom contract multiple times to generate rewards
   await executeCustomContract(customContractAddress)
 
   // Distribute rewards to users based on their shares
-  await distributeRewards(factoryContractAddress)
+  await distributeRewards(splitterContractAddress)
 })()

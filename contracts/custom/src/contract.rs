@@ -1,4 +1,4 @@
-use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
+use archway_bindings::{ArchwayQuery, ArchwayResult};
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
@@ -36,47 +36,17 @@ pub fn execute(
     match msg {
         // ... other execute messages
         ExecuteMsg::Increment {} => execute_increment(deps, env, info),
-        ExecuteMsg::UpdateRewardMetadata {
-            owner_address,
-            rewards_address,
-        } => execute_update_reward_metadata(deps, env, info, owner_address, rewards_address),
     }
 }
 
-// ... other execute methods
-
-// This will increment the counter in the contract
 fn execute_increment(
     deps: DepsMut<ArchwayQuery>,
     _env: Env,
     _info: MessageInfo,
 ) -> ArchwayResult<ContractError> {
-    // ... write custom logic if needed
-
     COUNTER.update(deps.storage, |item| -> StdResult<_> { Ok(item + 1) })?;
 
     Ok(Response::new())
-}
-
-// TODO: Add this execute method
-// This will update the owner and rewards address on this contract
-fn execute_update_reward_metadata(
-    _deps: DepsMut<ArchwayQuery>,
-    _env: Env,
-    _info: MessageInfo,
-    owner_address: Option<String>,
-    rewards_address: Option<String>,
-) -> ArchwayResult<ContractError> {
-    // ... write custom logic if needed
-
-    let msg = ArchwayMsg::UpdateContractMetadata {
-        owner_address,
-        rewards_address,
-    };
-
-    Ok(Response::new()
-        .add_message(msg)
-        .add_attribute("method", "update_rewards_address"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]

@@ -1,9 +1,9 @@
 pub mod helpers;
 use helpers::*;
 
-use archway_reward_manager_factory::msg::ExecuteMsg;
 use cosmwasm_std::{coins, Addr, Uint128};
 use cw_multi_test::Executor;
+use pantheon_splitter::msg::ExecuteMsg;
 
 #[test]
 fn test_happy_path() {

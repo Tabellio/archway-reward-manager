@@ -1,6 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use archway_reward_manager_factory::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use pantheon_splitter::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 fn main() {
     write_api! {

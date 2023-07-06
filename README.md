@@ -1,10 +1,6 @@
-# Archway Reward Manager
+# Pantheon Contracts
 
-Archway Reward Manager is a platform to make reward and payment related process easier to manage in Archway Network.
-
-> **Known Issue**: Normally the first time if we want to update a contract's reward metadata, we have to do it with the contract's admin address. In our case when we are creating a custom contract through the factory we set the admin as the factory contract address.
->
-> For some reason this metadata update does not work. The idea and code is there but needs to be debugged to fix this issue.
+Pantheon is a platform to manage contract rewards and payment streams on Archway Network.
 
 ## Features
 
