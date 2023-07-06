@@ -318,22 +318,19 @@ pub fn reply(deps: DepsMut<ArchwayQuery>, env: Env, msg: Reply) -> ArchwayResult
 
     match reply {
         Ok(res) => {
-            let msgs: Vec<WasmMsg> = vec![
-                WasmMsg::Execute {
-                    contract_addr: res.contract_address.clone(),
-                    msg: to_binary(&ArchwayRewardManagerUtils::UpdateRewardMetadata {
-                        owner_address: Some(env.contract.address.to_string()),
-                        rewards_address: Some(env.contract.address.to_string()),
-                    })?,
-                    funds: vec![],
-                },
-                WasmMsg::UpdateAdmin {
-                    contract_addr: res.contract_address,
-                    admin: config.admin.to_string(),
-                },
-            ];
+            let update_contract_metadata_msg = ArchwayMsg::UpdateContractMetadata {
+                contract_address: Some(res.contract_address.clone()),
+                owner_address: Some(env.contract.address.to_string()),
+                rewards_address: Some(env.contract.address.to_string()),
+            };
+            let update_admin_msg = WasmMsg::UpdateAdmin {
+                contract_addr: res.contract_address.clone(),
+                admin: config.admin.to_string(),
+            };
 
-            Ok(Response::new().add_messages(msgs))
+            Ok(Response::new()
+                .add_message(update_contract_metadata_msg)
+                .add_message(update_admin_msg))
         }
         Err(err) => Err(ContractError::Std(StdError::GenericErr {
             msg: err.to_string(),
