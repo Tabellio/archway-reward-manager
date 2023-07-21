@@ -532,7 +532,6 @@ dependencies = [
  "cosmwasm-storage",
  "cw-multi-test",
  "cw-storage-plus",
- "cw-utils",
  "cw2",
  "pantheon-splitter",
  "pantheon-utils",

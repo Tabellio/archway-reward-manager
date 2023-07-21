@@ -1,34 +1,31 @@
-use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdError, StdResult,
-    SubMsg, WasmMsg,
+    instantiate2_address, to_binary, Binary, CodeInfoResponse, Deps, DepsMut, Env, MessageInfo,
+    Response, StdResult, WasmMsg,
 };
 use cw2::set_contract_version;
-use cw_utils::parse_reply_instantiate_data;
-
-use pantheon_utils::Share;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{Config, CONFIG, SPLITTER_CODE_ID};
 
+use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
+
 use pantheon_splitter::msg::InstantiateMsg as SplitterInstantiateMsg;
+use pantheon_utils::Share;
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:pantheon-factory";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-const SPLITTER_INSTANTIATE_REPLY_ID: u64 = 1;
-
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
-    deps: DepsMut,
+    deps: DepsMut<ArchwayQuery>,
     _env: Env,
     info: MessageInfo,
     msg: InstantiateMsg,
-) -> Result<Response, ContractError> {
+) -> ArchwayResult<ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
     let config = Config { admin: info.sender };
@@ -41,14 +38,14 @@ pub fn instantiate(
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
-    deps: DepsMut,
+    deps: DepsMut<ArchwayQuery>,
     env: Env,
     info: MessageInfo,
     msg: ExecuteMsg,
-) -> Result<Response, ContractError> {
+) -> ArchwayResult<ContractError> {
     match msg {
         ExecuteMsg::UpdateSplitterCodeID { code_id } => {
-            execute_splitter_code_id(deps, info, code_id)
+            execute_update_splitter_code_id(deps, info, code_id)
         }
         ExecuteMsg::CreateSplitter {
             shares,
@@ -58,11 +55,11 @@ pub fn execute(
     }
 }
 
-fn execute_splitter_code_id(
-    deps: DepsMut,
+fn execute_update_splitter_code_id(
+    deps: DepsMut<ArchwayQuery>,
     info: MessageInfo,
     code_id: u64,
-) -> Result<Response, ContractError> {
+) -> ArchwayResult<ContractError> {
     let config = CONFIG.load(deps.storage)?;
     if config.admin != info.sender {
         return Err(ContractError::Unauthorized {});
@@ -74,32 +71,53 @@ fn execute_splitter_code_id(
 }
 
 fn execute_create_splitter(
-    deps: DepsMut,
-    _env: Env,
+    deps: DepsMut<ArchwayQuery>,
+    env: Env,
     info: MessageInfo,
     shares: Vec<Share>,
     mutable: bool,
     label: String,
-) -> Result<Response, ContractError> {
+) -> ArchwayResult<ContractError> {
+    let config = CONFIG.load(deps.storage)?;
     let code_id = SPLITTER_CODE_ID.load(deps.storage)?;
 
-    let msg = SubMsg::reply_on_success(
-        WasmMsg::Instantiate {
-            admin: Some(info.sender.to_string()),
-            code_id,
-            msg: to_binary(&SplitterInstantiateMsg { shares, mutable })?,
-            funds: vec![],
-            label,
-        },
-        SPLITTER_INSTANTIATE_REPLY_ID,
-    );
+    let msg = to_binary(&SplitterInstantiateMsg { shares, mutable })?;
+
+    let creator = deps.api.addr_canonicalize(env.contract.address.as_str())?;
+    let CodeInfoResponse { checksum, .. } = deps.querier.query_wasm_code_info(code_id)?;
+    let salt = msg.clone();
+    let address = deps
+        .api
+        .addr_humanize(&instantiate2_address(&checksum, &creator, &salt)?)?;
 
     Ok(Response::new()
-        .add_submessage(msg)
-        .add_attribute("action", "create_splitter"))
+        .add_message(WasmMsg::Instantiate2 {
+            admin: Some(info.sender.to_string()),
+            code_id,
+            msg,
+            funds: vec![],
+            label,
+            salt,
+        })
+        .add_message(ArchwayMsg::UpdateContractMetadata {
+            contract_address: Some(address.to_string()),
+            owner_address: Some(config.admin.to_string()),
+            rewards_address: Some(config.admin.to_string()),
+        })
+        .add_message(WasmMsg::UpdateAdmin {
+            contract_addr: address.to_string(),
+            admin: info.sender.to_string(),
+        }))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn query(_deps: Deps, _env: Env, _msg: QueryMsg) -> StdResult<Binary> {
-    unimplemented!()
+pub fn query(deps: Deps<ArchwayQuery>, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    match msg {
+        QueryMsg::SplitterCodeID {} => to_binary(&query_splitter_code_id(deps, env)?),
+    }
+}
+
+fn query_splitter_code_id(deps: Deps<ArchwayQuery>, _env: Env) -> StdResult<u64> {
+    let code_id = SPLITTER_CODE_ID.load(deps.storage)?;
+    Ok(code_id)
 }
