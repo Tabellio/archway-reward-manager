@@ -50,7 +50,8 @@ cw-utils = "1.0.1"
 schemars = "0.8.10"
 serde = { version = "1.0.145", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0.31" }
-archway-bindings = { git = "https://github.com/chris-ricketts/archway-bindings" }
+archway-bindings = { git = "https://github.com/archway-network/archway-bindings" }
+pantheon-utils = { path = "../../packages/utils" }
 
 [dev-dependencies]
 cw-multi-test = "0.16.2"

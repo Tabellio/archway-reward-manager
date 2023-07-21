@@ -7,9 +7,10 @@ use cosmwasm_std::{Addr, Decimal};
 use cw_multi_test::Executor;
 use pantheon_splitter::{
     msg::{ExecuteMsg, QueryMsg},
-    state::Share,
     ContractError,
 };
+
+use pantheon_utils::Share;
 
 #[test]
 fn test_happy_path() {

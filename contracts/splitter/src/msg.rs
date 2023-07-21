@@ -2,7 +2,9 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::Binary;
 
-use crate::state::{Config, Share};
+use pantheon_utils::Share;
+
+use crate::state::Config;
 
 #[cw_serde]
 pub struct InstantiateMsg {

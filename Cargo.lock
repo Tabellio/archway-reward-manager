@@ -35,7 +35,7 @@ dependencies = [
 [[package]]
 name = "archway-bindings"
 version = "0.1.0"
-source = "git+https://github.com/chris-ricketts/archway-bindings#82d5c9c638e1d427240f23b265a44144192b5510"
+source = "git+https://github.com/archway-network/archway-bindings#f6daf0b8a5c850ba47ebf5dd8ca63ee342b523dc"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
@@ -523,10 +523,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
 
 [[package]]
+name = "pantheon-factory"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "cw-multi-test",
+ "cw-storage-plus",
+ "cw2",
+ "pantheon-utils",
+ "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "pantheon-splitter"
 version = "0.1.0"
 dependencies = [
- "archway-bindings 0.1.0 (git+https://github.com/chris-ricketts/archway-bindings)",
+ "archway-bindings 0.1.0 (git+https://github.com/archway-network/archway-bindings)",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
@@ -535,8 +551,18 @@ dependencies = [
  "cw-storage-plus",
  "cw-utils",
  "cw2",
+ "pantheon-utils",
  "schemars",
  "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "pantheon-utils"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
  "thiserror",
 ]
 

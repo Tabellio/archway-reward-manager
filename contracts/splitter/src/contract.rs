@@ -8,13 +8,15 @@ use cosmwasm_std::{
 };
 use cw2::set_contract_version;
 use cw_storage_plus::Bound;
+use cw_utils::parse_reply_instantiate_data;
 
 use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
-use cw_utils::parse_reply_instantiate_data;
+
+use pantheon_utils::Share;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
-use crate::state::{Config, Share, CONFIG, SHARES};
+use crate::state::{Config, CONFIG, SHARES};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:pantheon-splitter";

@@ -1,11 +1,11 @@
-use std::str::FromStr;
-
 use archway_bindings::{ArchwayMsg, ArchwayQuery};
 use cosmwasm_std::{testing::MockApi, Addr, Coin, Decimal, MemoryStorage, Uint128};
 use cw_multi_test::{
     custom_app, App, BankKeeper, Contract, ContractWrapper, Executor, FailingModule, WasmKeeper,
 };
-use pantheon_splitter::{msg::InstantiateMsg, state::Share};
+use pantheon_splitter::msg::InstantiateMsg;
+use pantheon_utils::Share;
+use std::str::FromStr;
 
 pub fn factory_contract() -> Box<dyn Contract<ArchwayMsg, ArchwayQuery>> {
     let contract = ContractWrapper::new(
