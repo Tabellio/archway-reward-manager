@@ -40,6 +40,7 @@ fn test_happy_path() {
         &InstantiateMsg {
             shares,
             mutable: false,
+            admin: ADMIN.to_string(),
         },
         &vec![],
         "Pantheon Splitter",
@@ -100,6 +101,7 @@ fn test_percentage_limit_exceeded() {
             &InstantiateMsg {
                 shares,
                 mutable: false,
+                admin: ADMIN.to_string(),
             },
             &vec![],
             "Pantheon Splitter",
@@ -136,6 +138,7 @@ fn test_percentage_limit_not_met() {
             &InstantiateMsg {
                 shares,
                 mutable: false,
+                admin: ADMIN.to_string(),
             },
             &vec![],
             "Pantheon Splitter",

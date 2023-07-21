@@ -61,7 +61,11 @@ pub fn proper_instantiate(
     app.instantiate_contract(
         code_id,
         Addr::unchecked(ADMIN),
-        &InstantiateMsg { shares, mutable },
+        &InstantiateMsg {
+            shares,
+            mutable,
+            admin: ADMIN.to_string(),
+        },
         &vec![],
         "Pantheon Splitter",
         None,
@@ -101,6 +105,7 @@ pub fn proper_instantiate_with_shares(
         &InstantiateMsg {
             shares,
             mutable: true,
+            admin: ADMIN.to_string(),
         },
         &vec![],
         "Pantheon Splitter",

@@ -44,7 +44,7 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> ArchwayResult<ContractError> {
     match msg {
-        ExecuteMsg::UpdateSplitterCodeID { code_id } => {
+        ExecuteMsg::UpdateSplitterCodeId { code_id } => {
             execute_update_splitter_code_id(deps, info, code_id)
         }
         ExecuteMsg::CreateSplitter {
@@ -81,18 +81,22 @@ fn execute_create_splitter(
     let config = CONFIG.load(deps.storage)?;
     let code_id = SPLITTER_CODE_ID.load(deps.storage)?;
 
-    let msg = to_binary(&SplitterInstantiateMsg { shares, mutable })?;
+    let msg = to_binary(&SplitterInstantiateMsg {
+        shares,
+        mutable,
+        admin: info.sender.to_string(),
+    })?;
 
     let creator = deps.api.addr_canonicalize(env.contract.address.as_str())?;
     let CodeInfoResponse { checksum, .. } = deps.querier.query_wasm_code_info(code_id)?;
-    let salt = msg.clone();
+    let salt = to_binary(&format!("{}{}", env.block.height, info.sender))?;
     let address = deps
         .api
         .addr_humanize(&instantiate2_address(&checksum, &creator, &salt)?)?;
 
     Ok(Response::new()
         .add_message(WasmMsg::Instantiate2 {
-            admin: Some(info.sender.to_string()),
+            admin: Some(env.contract.address.to_string()),
             code_id,
             msg,
             funds: vec![],

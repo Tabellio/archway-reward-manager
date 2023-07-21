@@ -8,7 +8,7 @@ pub struct InstantiateMsg {
 
 #[cw_serde]
 pub enum ExecuteMsg {
-    UpdateSplitterCodeID {
+    UpdateSplitterCodeId {
         code_id: u64,
     },
     CreateSplitter {

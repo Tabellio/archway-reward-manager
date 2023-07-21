@@ -29,9 +29,9 @@ pub fn instantiate(
 ) -> ArchwayResult<ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
-    // Save the sender as the admin
+    let admin = deps.api.addr_validate(&msg.admin)?;
     let config = Config {
-        admin: info.sender.clone(),
+        admin,
         mutable: msg.mutable,
     };
     CONFIG.save(deps.storage, &config)?;

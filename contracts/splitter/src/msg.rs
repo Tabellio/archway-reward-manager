@@ -8,6 +8,7 @@ use crate::state::Config;
 
 #[cw_serde]
 pub struct InstantiateMsg {
+    pub admin: String,
     pub shares: Vec<Share>,
     // If true, the contract will not allow any more shares to be added
     pub mutable: bool,
