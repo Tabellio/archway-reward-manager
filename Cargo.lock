@@ -526,12 +526,15 @@ checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
 name = "pantheon-factory"
 version = "0.1.0"
 dependencies = [
+ "archway-bindings 0.1.0 (git+https://github.com/archway-network/archway-bindings)",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw-multi-test",
  "cw-storage-plus",
+ "cw-utils",
  "cw2",
+ "pantheon-splitter",
  "pantheon-utils",
  "schemars",
  "serde",
