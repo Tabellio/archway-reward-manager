@@ -50,7 +50,7 @@ schemars = "0.8.10"
 serde = { version = "1.0.145", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0.31" }
 pantheon-utils = { path = "../../packages/utils" }
-pantheon-splitter = { path = "../splitter" }
+pantheon-splitter = { path = "../splitter", features = ["library"] }
 archway-bindings = { git = "https://github.com/archway-network/archway-bindings" }
 
 [dev-dependencies]

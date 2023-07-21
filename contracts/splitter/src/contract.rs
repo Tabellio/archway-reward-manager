@@ -3,12 +3,11 @@ use std::ops::Mul;
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    coins, to_binary, BankMsg, Binary, Decimal, Deps, DepsMut, Env, MessageInfo, Order, Reply,
-    Response, StdError, StdResult, SubMsg, WasmMsg,
+    coins, instantiate2_address, to_binary, BankMsg, Binary, CodeInfoResponse, Decimal, Deps,
+    DepsMut, Env, MessageInfo, Order, Response, StdResult, WasmMsg,
 };
 use cw2::set_contract_version;
 use cw_storage_plus::Bound;
-use cw_utils::parse_reply_instantiate_data;
 
 use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
 
@@ -21,8 +20,6 @@ use crate::state::{Config, CONFIG, SHARES};
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:pantheon-splitter";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-
-const INSTANTIATE_REPLY_ID: u64 = 1;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -136,18 +133,31 @@ fn execute_add_custom_contract(
         return Err(ContractError::Unauthorized {});
     }
 
-    let msg: SubMsg<ArchwayMsg> = SubMsg::reply_on_success(
-        WasmMsg::Instantiate {
+    let creator = deps.api.addr_canonicalize(env.contract.address.as_str())?;
+    let CodeInfoResponse { checksum, .. } = deps.querier.query_wasm_code_info(code_id)?;
+    let salt = msg.clone();
+    let address = deps
+        .api
+        .addr_humanize(&instantiate2_address(&checksum, &creator, &salt)?)?;
+
+    Ok(Response::new()
+        .add_message(WasmMsg::Instantiate2 {
             admin: Some(env.contract.address.to_string()),
             code_id,
+            label: "instantiate2".to_string(),
             msg,
-            funds: info.funds,
-            label: "Pantheon Custom Contract".to_string(),
-        },
-        INSTANTIATE_REPLY_ID,
-    );
-
-    Ok(Response::new().add_submessage(msg))
+            funds: vec![],
+            salt,
+        })
+        .add_message(ArchwayMsg::UpdateContractMetadata {
+            contract_address: Some(address.to_string()),
+            owner_address: Some(env.contract.address.to_string()),
+            rewards_address: Some(env.contract.address.to_string()),
+        })
+        .add_message(WasmMsg::UpdateAdmin {
+            contract_addr: address.to_string(),
+            admin: info.sender.to_string(),
+        }))
 }
 
 fn execute_update_custom_contract_reward_metadata(
@@ -252,38 +262,6 @@ fn execute_distribute_native_tokens(
     }
 
     Ok(Response::new().add_messages(msgs))
-}
-
-#[cfg_attr(not(feature = "library"), entry_point)]
-pub fn reply(deps: DepsMut<ArchwayQuery>, env: Env, msg: Reply) -> ArchwayResult<ContractError> {
-    let config = CONFIG.load(deps.storage)?;
-
-    if msg.id != INSTANTIATE_REPLY_ID {
-        return Err(ContractError::InstantiateError {});
-    };
-
-    let reply = parse_reply_instantiate_data(msg);
-
-    match reply {
-        Ok(res) => {
-            let update_contract_metadata_msg = ArchwayMsg::UpdateContractMetadata {
-                contract_address: Some(res.contract_address.clone()),
-                owner_address: Some(env.contract.address.to_string()),
-                rewards_address: Some(env.contract.address.to_string()),
-            };
-            let update_admin_msg = WasmMsg::UpdateAdmin {
-                contract_addr: res.contract_address.clone(),
-                admin: config.admin.to_string(),
-            };
-
-            Ok(Response::new()
-                .add_message(update_contract_metadata_msg)
-                .add_message(update_admin_msg))
-        }
-        Err(err) => Err(ContractError::Std(StdError::GenericErr {
-            msg: err.to_string(),
-        })),
-    }
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]

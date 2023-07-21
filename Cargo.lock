@@ -552,7 +552,6 @@ dependencies = [
  "custom-contract",
  "cw-multi-test",
  "cw-storage-plus",
- "cw-utils",
  "cw2",
  "pantheon-utils",
  "schemars",
