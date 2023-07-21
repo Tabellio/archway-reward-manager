@@ -5,9 +5,12 @@ dotenv.config()
 ;(async () => {
   const { adminClient, adminAccount } = await getClientsAndAccounts()
 
-  let res = await adminClient.getContractMetadata(
-    "archway1yl88z864ufynrtafdgl842zegvh26zlph7j8cw9zer7s96hgrzqs89wqjt"
+  let rew = await adminClient.getAllRewardsRecords(adminAccount.address)
+  console.log(
+    "\n🟠 Outstanding Rewards Records: ",
+    JSON.stringify(rew, null, 2),
+    "\n"
   )
 
-  console.log("\n🟠 Rewards Records: ", res, "\n")
+  await adminClient.withdrawContractRewards(adminAccount.address, 0, "auto")
 })()
