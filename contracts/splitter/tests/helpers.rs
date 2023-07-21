@@ -12,8 +12,7 @@ pub fn factory_contract() -> Box<dyn Contract<ArchwayMsg, ArchwayQuery>> {
         pantheon_splitter::contract::execute,
         pantheon_splitter::contract::instantiate,
         pantheon_splitter::contract::query,
-    )
-    .with_reply(pantheon_splitter::contract::reply);
+    );
     Box::new(contract)
 }
 

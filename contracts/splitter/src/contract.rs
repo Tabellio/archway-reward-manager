@@ -1,5 +1,3 @@
-use std::ops::Mul;
-
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
@@ -8,14 +6,15 @@ use cosmwasm_std::{
 };
 use cw2::set_contract_version;
 use cw_storage_plus::Bound;
-
-use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
-
-use pantheon_utils::Share;
+use std::ops::Mul;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{Config, CONFIG, SHARES};
+
+use archway_bindings::{ArchwayMsg, ArchwayQuery, ArchwayResult};
+
+use pantheon_utils::Share;
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:pantheon-splitter";
